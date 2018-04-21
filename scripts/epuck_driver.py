@@ -5,6 +5,7 @@ import rospy
 import numpy as np
 from cv_bridge.core import CvBridge
 from epuck.ePuck import ePuck
+#from epuck.controller import Controller as ePuck
 from sensor_msgs.msg import Range
 from sensor_msgs.msg import Imu
 from sensor_msgs.msg import Image
@@ -100,11 +101,13 @@ class EPuckDriver(object):
         """
         # get parameters to enable sensors
         for sensor in sensors:
+            print "DRV:", sensor
             self.enabled_sensors[sensor] = rospy.get_param('~' + sensor, False)
-            #print rospy.get_param('~' + sensor, False)
+            print rospy.get_param('~' + sensor, False)
 
         # Only enabled sensors
         enable = [s for s, en in self.enabled_sensors.items() if en]
+        print "XD", enable
 
         # Enable the right sensors
         self._bridge.enable(*enable)
@@ -151,7 +154,7 @@ class EPuckDriver(object):
                 self.prox_msg[i].header.frame_id =  self._name+"/base_prox" + str(i)
                 self.prox_msg[i].field_of_view = 0.26 	# About 15 degrees...to be checked!
                 self.prox_msg[i].min_range = 0.005	# 0.5 cm
-                self.prox_msg[i].max_range = 0.05		# 5 cm
+                self.prox_msg[i].max_range = 0.5		# 5 cm
 
         if self.enabled_sensors['motor_position']:
             self.odom_publisher = rospy.Publisher('odom', Odometry)
@@ -409,16 +412,21 @@ class EPuckDriver(object):
         Controls the velocity of each wheel based on linear and angular velocities.
         :param data:
         """
-        linear = data.linear.x
+        linear = data.linear.x * 100. / 3.14
         angular = data.angular.z
+
+        print("linear " + str(linear))
+        print("angular " + str(angular))
 
         # Kinematic model for differential robot.
         wl = (linear - (WHEEL_SEPARATION / 2.) * angular) / WHEEL_DIAMETER
         wr = (linear + (WHEEL_SEPARATION / 2.) * angular) / WHEEL_DIAMETER
+        print("wl " + str(wl))
+        print("wr " + str(wr))
 
         # At input 1000, angular velocity is 1 cycle / s or  2*pi/s.
-        left_vel = wl * 1000.
-        right_vel = wr * 1000.
+        left_vel = wr * 1000.
+        right_vel = wl * 1000.
         self._bridge.set_motors_speed(left_vel, right_vel)
 
 

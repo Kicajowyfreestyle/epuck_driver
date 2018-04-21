@@ -4,10 +4,10 @@
     <arg name="epuck_name" default="epuck_robot_0"/>
     <arg name="cam_en" default="false"/>
     <arg name="acc_en" default="true"/>
-    <arg name="prox_en" default="false"/>
+    <arg name="prox_en" default="true"/>
     <arg name="mot_pos_en" default="true"/>
     <arg name="light_en" default="true"/>
-    <arg name="floor_en" default="false"/>
+    <arg name="floor_en" default="true"/>
 	<arg name="sel_en" default="true"/>
 	<arg name="mot_speed_en" default="true"/>
 	<arg name="mic_en" default="false"/>
